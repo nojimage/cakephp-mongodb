@@ -1047,6 +1047,7 @@ class MongodbSource extends DboSource {
 
 		if (is_object($return)) {
 			$_return = array();
+			$Model->totalCount = $return->count();
 			while ($return->hasNext()) {
 				$mongodata = $return->getNext();
 				if ($this->config['set_string_id'] && !empty($mongodata['_id']) && is_object($mongodata['_id'])) {
