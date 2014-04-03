@@ -129,14 +129,13 @@ class SqlCompatibleBehavior extends ModelBehavior {
  */
 	protected function convertDates($format, &$results) {
 		if (is_array($results)) {
-			foreach($results as &$row) {
+			foreach ($results as &$row) {
 				$this->convertDates($format, $row);
 			}
 		} elseif (is_a($results, 'MongoDate')) {
 			$results = date($format, $results->sec);
 		}
 	}
-
 
 /**
  * translateOrders method
@@ -148,16 +147,15 @@ class SqlCompatibleBehavior extends ModelBehavior {
  * @access protected
  */
 	protected function _translateOrders(Model &$Model, &$orders) {
-		if(!empty($orders[0])) {
-			foreach($orders[0] as $key => $val) {
-				if(preg_match('/^(.+) (ASC|DESC)$/i', $val, $match)) {
+		if (!empty($orders[0])) {
+			foreach ($orders[0] as $key => $val) {
+				if (preg_match('/^(.+) (ASC|DESC)$/i', $val, $match)) {
 					$orders[0][$match[1]] = $match[2];
 					unset($orders[0][$key]);
 				}
 			}
 		}
 	}
-
 
 /**
  * translateConditions method
@@ -171,7 +169,7 @@ class SqlCompatibleBehavior extends ModelBehavior {
  */
 	protected function _translateConditions(Model &$Model, &$conditions) {
 		$return = false;
-		foreach($conditions as $key => &$value) {
+		foreach ($conditions as $key => &$value) {
 			$uKey = strtoupper($key);
 			if (substr($uKey, -6) === 'NOT IN') {
 				// 'Special' case because it has a space in it, and it's the whole key
@@ -184,7 +182,7 @@ class SqlCompatibleBehavior extends ModelBehavior {
 			}
 			if ($uKey === 'OR') {
 				unset($conditions[$key]);
-				foreach($value as $key => $part) {
+				foreach ($value as $key => $part) {
 					$part = array($key => $part);
 					$this->_translateConditions($Model, $part);
 					$conditions['$or'][] = $part;
@@ -195,15 +193,15 @@ class SqlCompatibleBehavior extends ModelBehavior {
 			if ($key === $Model->primaryKey && is_array($value)) {
 				//_id=>array(1,2,3) pattern, set  $in operator
 				$isMongoOperator = false;
-				foreach($value as $idKey => $idValue) {
+				foreach ($value as $idKey => $idValue) {
 					//check a mongo operator exists
-					if(substr($idKey,0,1) === '$') {
+					if (substr($idKey, 0, 1) === '$') {
 						$isMongoOperator = true;
 						continue;
 					}
 				}
 				unset($idKey, $idValue);
-				if($isMongoOperator === false) {
+				if ($isMongoOperator === false) {
 					$conditions[$key] = array('$in' => $value);
 				}
 				$return = true;
